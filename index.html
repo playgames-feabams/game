@@ -1,304 +1,453 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Magic Chest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
 <style>
+/* ════════════════════════════════════════
+   FENIX THEME — palette from casino CSS
+   Primary:  #D65217  (orange)
+   Accent:   #F07C2E  (light orange)
+   Dark bg:  #0D2A35 / #000
+════════════════════════════════════════ */
 :root{
-  --menu-bg:#101e20;
-  --theme-orange:#D65217;
-  --theme-orange-2:#F07C2E;
-  --theme-green-1:#00F9A6;
-  --theme-green-2:#019E66;
-  --text:#fff;
-  --text-soft:rgba(255,255,255,.72);
-  --line:rgba(255,255,255,.22);
-  --glass:rgba(255,255,255,.10);
-  --glass-2:rgba(255,255,255,.15);
-  --body:#000;
-  --panel:#000000c4;
-  --panel-2:#0f0f0fcc;
-  --danger:#ff6464;
-  --success:#12a730;
-  --shadow:0 20px 60px rgba(0,0,0,.45);
-  --orange-grad:linear-gradient(180deg,#F07C2E 0%, #D65217 100%);
-  --green-grad:linear-gradient(90deg,#00F9A6 0%, #019E66 100%);
-  --page-bg:url('/images/background.png');
-  --font-main:"Montserrat", system-ui, sans-serif;
-  --font-num:"Nunito", system-ui, sans-serif;
+  --baseBg:#0a1a20;
+  --orange1:#D65217;
+  --orange2:#F07C2E;
+  --orange3:#e8823a;
+  --darkBg:#0D2A35;
+  --submitBtn:linear-gradient(180deg,#F07C2E 0%,#D65217 60%,#b84410 100%);
+  --btnText:#fff;
+  --font:"Fredoka One", cursive;
+  --gold1:#F07C2E;
+  --goldAcc:#D65217;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--body);color:var(--text);font-family:var(--font-main)}
-button,input{font:inherit}
-body::before{
-  content:"";position:fixed;inset:0;z-index:0;
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:var(--baseBg);overflow:hidden;font-family:var(--font);color:#fff;}
+
+/* ── BACKGROUND ──
+   ★ Para tu propia imagen: background: url('fondo.jpg') center/cover no-repeat;
+*/
+#bgLayer{
+  position:fixed;inset:0;z-index:0;
   background:
-    radial-gradient(1200px 700px at 50% 60%, rgba(214,82,23,.18) 0%, rgba(214,82,23,0) 52%),
-    radial-gradient(800px 500px at 50% 25%, rgba(0,249,166,.08) 0%, rgba(0,249,166,0) 42%),
-    linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.85) 100%),
-    var(--page-bg);
-  background-color:#000;
-  background-position:center;
-  background-size:cover;
+    radial-gradient(ellipse 90% 55% at 50% 25%, #1a2e38 0%, #0a1a20 55%, #050d10 100%);
 }
-body::after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,.05) 0 1px, transparent 1px),
-    radial-gradient(circle at 80% 75%, rgba(255,255,255,.05) 0 1px, transparent 1px);
-  background-size:140px 140px, 180px 180px;
+#bgLayer::before,#bgLayer::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(circle,rgba(214,82,23,.50) 1px,transparent 1px),
+    radial-gradient(circle,rgba(240,124,46,.30) 1px,transparent 1px);
+  background-size:170px 170px,110px 110px;
+  background-position:0 0,55px 55px;
+  animation:sDrift 100s linear infinite;
   opacity:.22;
 }
-.app-shell{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column}
-#loading,
-#screenUser,
-#screenBlocked,
-#rwOverlay,
-#savingOverlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
-#loading{display:flex;z-index:220;flex-direction:column;gap:18px;background:rgba(0,0,0,.95);transition:opacity .9s ease}
-#loading.out{opacity:0;pointer-events:none}
-.loader-logo{display:flex;align-items:center;gap:14px}
-.loader-mark,
-.brand-mark{
-  width:60px;height:60px;border-radius:18px;display:grid;place-items:center;
-  background:var(--orange-grad);color:#fff;font-weight:900;font-size:2rem;
-  box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 0 40px rgba(214,82,23,.35);
-}
-.loader-text,
-.brand-text{
-  font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  text-shadow:0 0 14px rgba(214,82,23,.25);
-}
-.loader-text{font-size:1.15rem}
-#loadBar{width:min(260px,70vw);height:5px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
-#loadFill{height:100%;width:0;background:var(--orange-grad);box-shadow:0 0 20px rgba(214,82,23,.6);transition:width .28s ease}
-#loadMsg{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-soft)}
+#bgLayer::after{background-size:240px 190px,80px 80px;animation-duration:150s;animation-direction:reverse;opacity:.12;}
+@keyframes sDrift{to{background-position:170px 170px,220px 170px;}}
 
-header.topbar{
-  position:relative;z-index:2;display:flex;align-items:center;justify-content:center;
-  min-height:78px;padding:16px 24px;background:linear-gradient(180deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,0) 100%);
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;z-index:200;
+  background:var(--baseBg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity .9s;
 }
-.brand{display:flex;align-items:center;gap:14px}
-.brand-mark{width:52px;height:52px;font-size:1.7rem;border-radius:16px}
-.brand-text{font-size:clamp(1rem,3vw,1.4rem)}
-#muteBtn{
-  position:absolute;right:20px;top:50%;transform:translateY(-50%);
-  width:44px;height:44px;border-radius:999px;border:1px solid var(--line);
-  background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;cursor:pointer;
-  backdrop-filter:blur(10px);transition:.2s ease;z-index:3
-}
-#muteBtn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
-#muteBtn.muted{opacity:.55}
+#loading.out{opacity:0;pointer-events:none;}
+#loadLogoSlot{display:flex;align-items:center;gap:12px;}
+#loadBar{width:clamp(160px,50vw,220px);height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;}
+#loadFill{height:100%;width:0%;background:var(--submitBtn);border-radius:2px;transition:width .28s ease;box-shadow:0 0 10px var(--orange1);}
+#loadMsg{font-size:.82rem;letter-spacing:4px;text-transform:uppercase;color:rgba(214,82,23,.8);}
 
-#canvasWrap{position:relative;flex:1;min-height:0}
-#renderCanvas{width:100%;height:100%;display:block;touch-action:none;position:relative;z-index:1}
-#stageAura{
-  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
-  width:min(74vw,420px);height:min(74vw,420px);border-radius:999px;pointer-events:none;z-index:0;
-  background:radial-gradient(circle, rgba(214,82,23,.34) 0%, rgba(214,82,23,.11) 28%, rgba(0,0,0,0) 68%);
-  filter:blur(12px);animation:pulseAura 3s ease-in-out infinite;
+/* ── PANTALLA: INGRESÁ TU USUARIO ── */
+#screenUser{
+  position:fixed;inset:0;z-index:110;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
 }
-@keyframes pulseAura{0%,100%{opacity:.68;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}}
+#screenUser.show{display:flex;}
 
-footer.bottombar{
-  position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;
-  padding:14px 24px 28px;background:linear-gradient(0deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,0) 100%)
+.su-card{
+  width:min(96%,400px);
+  background:linear-gradient(160deg,#0d1f26 0%,#152c36 55%,#080f12 100%);
+  border:1px solid rgba(214,82,23,.35);
+  border-radius:20px;
+  padding:clamp(28px,6vw,44px) clamp(24px,6vw,40px);
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  box-shadow:0 0 60px rgba(214,82,23,.20),0 0 0 1px rgba(240,124,46,.08);
+  animation:cardPop .5s cubic-bezier(.34,1.56,.64,1);
 }
-#hintText{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-soft);animation:hintBlink 2s ease-in-out infinite;text-align:center}
-@keyframes hintBlink{0%,100%{opacity:1}50%{opacity:.25}}
-.primary-btn{
-  min-width:min(360px,92vw);padding:15px 24px;border:none;border-radius:999px;cursor:pointer;
-  background:var(--orange-grad);color:#fff;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  box-shadow:0 12px 30px rgba(214,82,23,.28), inset 0 1px 0 rgba(255,255,255,.24);
-  transition:transform .12s ease, opacity .12s ease;
-}
-.primary-btn:active{transform:translateY(2px)}
-.primary-btn:disabled{opacity:.45;pointer-events:none}
+@keyframes cardPop{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:none}}
 
-.panel{
-  width:min(430px,96vw);border-radius:28px;padding:28px 26px;background:linear-gradient(180deg, rgba(0,0,0,.86) 0%, rgba(15,15,15,.88) 100%);
-  border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);backdrop-filter:blur(16px);text-align:center
+.su-title{
+  font-size:clamp(1.2rem,5vw,1.7rem);
+  letter-spacing:3px;text-transform:uppercase;
+  background:var(--submitBtn);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 10px rgba(214,82,23,.5));
+  text-align:center;
 }
-.panel h2{font-size:clamp(1.15rem,4vw,1.7rem);font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
-.panel .sub{font-size:.85rem;line-height:1.6;letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);margin-bottom:18px}
-.input-shell{display:flex;flex-direction:column;gap:12px}
+.su-sub{
+  font-size:clamp(.72rem,2.8vw,.88rem);
+  letter-spacing:2px;text-transform:uppercase;
+  color:rgba(240,124,46,.70);
+  text-align:center;line-height:1.5;
+}
 #usernameInput{
-  width:100%;padding:15px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.22);
-  background:rgba(255,255,255,.08);color:#fff;text-align:center;text-transform:uppercase;outline:none;
-  letter-spacing:.16em;font-weight:700
+  width:100%;
+  background:rgba(214,82,23,.08);
+  border:1.5px solid rgba(214,82,23,.40);
+  border-radius:10px;
+  padding:14px 18px;
+  font-family:var(--font);
+  font-size:clamp(1rem,4vw,1.2rem);
+  letter-spacing:2px;color:#fff;
+  outline:none;text-align:center;text-transform:uppercase;
+  transition:border-color .2s,box-shadow .2s;
 }
-#usernameInput::placeholder{color:rgba(255,255,255,.4)}
-#usernameInput:focus{border-color:rgba(214,82,23,.85);box-shadow:0 0 0 4px rgba(214,82,23,.14)}
-#suError{min-height:1.2em;font-size:.8rem;color:var(--danger);letter-spacing:.08em;opacity:0;transition:.2s ease}
-#suError.show{opacity:1}
+#usernameInput::placeholder{color:rgba(214,82,23,.35);letter-spacing:2px;}
+#usernameInput:focus{border-color:rgba(240,124,46,.80);box-shadow:0 0 18px rgba(214,82,23,.25);}
+
+#suError{
+  font-size:clamp(.72rem,2.8vw,.85rem);
+  letter-spacing:2px;text-transform:uppercase;
+  color:#ff6b6b;text-align:center;
+  min-height:1.2em;opacity:0;transition:opacity .25s;
+}
+#suError.show{opacity:1;}
+
+#btnJugar{
+  cursor:pointer;border:none;
+  background:var(--submitBtn);color:var(--btnText);
+  font-family:var(--font);
+  font-size:clamp(.9rem,4vw,1.1rem);
+  letter-spacing:4px;text-transform:uppercase;
+  padding:15px 0;border-radius:8px;width:100%;
+  box-shadow:0 5px 0 rgba(100,25,5,.85),0 8px 24px rgba(214,82,23,.25),inset 0 0 16px rgba(255,255,255,.15);
+  transition:transform .12s,box-shadow .12s;
+}
+#btnJugar:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(100,25,5,.85);}
+#btnJugar:disabled{opacity:.4;pointer-events:none;}
+
 .su-spinner{
-  width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.14);border-top-color:var(--theme-orange);
-  display:none;animation:spin .8s linear infinite;margin-inline:auto
+  width:28px;height:28px;
+  border:3px solid rgba(214,82,23,.20);
+  border-top-color:var(--orange1);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  display:none;
 }
-.su-spinner.show{display:block}
+.su-spinner.show{display:block;}
 @keyframes spin{to{transform:rotate(360deg)}}
-#screenUser.show,#screenBlocked.show,#rwOverlay.show,#savingOverlay.show{display:flex}
 
-.blocked-icon{font-size:2.6rem;margin-bottom:10px;filter:drop-shadow(0 0 18px rgba(214,82,23,.25))}
-.blocked-name{font-size:clamp(1.3rem,5vw,2rem);font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;margin:6px 0 14px}
-.prev-prize{
-  margin-top:14px;padding:16px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)
+/* ── PANTALLA: YA PARTICIPASTE ── */
+#screenBlocked{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  z-index:110;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  min-height:100vh;
+  min-height:100dvh;
 }
-.prev-prize .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--text-soft)}
-.prev-prize .value{font-family:var(--font-num);font-size:clamp(2rem,9vw,3rem);font-weight:900;background:var(--orange-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#screenBlocked.show{display:flex;}
 
-#rwOverlay{background:rgba(0,0,0,.84);backdrop-filter:blur(14px);z-index:150}
-.reward-card{
-  width:min(450px,96vw);padding:30px 28px;border-radius:30px;text-align:center;background:linear-gradient(180deg, rgba(0,0,0,.88) 0%, rgba(12,12,12,.92) 100%);
-  border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow)
+.sb-card{
+  width:min(96%,400px);
+  background:linear-gradient(160deg,#0d1f26 0%,#152c36 55%,#080f12 100%);
+  border:1px solid rgba(214,82,23,.30);
+  border-radius:20px;
+  padding:clamp(32px,7vw,52px) clamp(24px,6vw,40px);
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+  box-shadow:0 0 60px rgba(214,82,23,.22),0 0 0 1px rgba(240,124,46,.06);
+  animation:cardPop .5s cubic-bezier(.34,1.56,.64,1);
+  flex-shrink:0;text-align:center;
 }
-.reward-top{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--theme-orange-2);margin-bottom:8px}
-.reward-user{font-size:clamp(1.4rem,5vw,2.2rem);font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
-.reward-tag{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-soft);margin-bottom:14px}
-.reward-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px}
-.coin-badge{
-  width:74px;height:74px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
-  background:var(--orange-grad);box-shadow:0 0 0 3px rgba(255,255,255,.12), 0 0 36px rgba(214,82,23,.35)
-}
-.coin-badge::before{content:'$';font-weight:900;font-size:2rem}
-#coinAmt{font-family:var(--font-num);font-size:clamp(3rem,12vw,5.4rem);line-height:1;font-weight:900;color:#fff;text-shadow:0 0 18px rgba(214,82,23,.35)}
-.reward-divider{width:84%;height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);margin:0 auto 16px}
-.reward-footer{font-size:.72rem;line-height:1.7;text-transform:uppercase;letter-spacing:.16em;color:var(--text-soft)}
+.sb-icon{font-size:clamp(2.5rem,10vw,4rem);filter:drop-shadow(0 0 16px rgba(214,82,23,.7));}
+.sb-title{font-size:clamp(1.1rem,5vw,1.6rem);letter-spacing:3px;text-transform:uppercase;color:var(--orange2);filter:drop-shadow(0 0 10px rgba(214,82,23,.5));text-align:center;width:100%;}
+.sb-name{font-size:clamp(1.3rem,6vw,2rem);letter-spacing:2px;text-transform:uppercase;background:var(--submitBtn);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(214,82,23,.5));text-align:center;width:100%;}
+.sb-sub{font-size:clamp(.72rem,2.8vw,.88rem);letter-spacing:3px;text-transform:uppercase;color:rgba(240,124,46,.65);text-align:center;line-height:1.6;width:100%;}
+.sb-prev-prize{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(214,82,23,.07);border:1px solid rgba(214,82,23,.22);border-radius:12px;padding:16px 28px;width:100%;text-align:center;}
+.sb-prev-label{font-size:clamp(.65rem,2.4vw,.78rem);letter-spacing:4px;text-transform:uppercase;color:rgba(240,124,46,.60);text-align:center;width:100%;}
+.sb-prev-coins{font-size:clamp(2rem,9vw,3.2rem);font-family:'Nunito',sans-serif;font-weight:900;background:linear-gradient(180deg,#ffb380 0%,#F07C2E 45%,#c04a10 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 14px rgba(214,82,23,.75));text-align:center;width:100%;display:block;}
+.sb-divider{width:80%;height:1px;background:linear-gradient(90deg,transparent,rgba(214,82,23,.30),transparent);}
 
-#savingOverlay{z-index:180;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);flex-direction:column;gap:14px}
-#savingOverlay p{font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-soft)}
-
-.burstCoin{
-  position:fixed;left:0;top:0;width:12px;height:12px;border-radius:50%;pointer-events:none;z-index:160;
-  background:var(--orange-grad);box-shadow:0 0 10px rgba(214,82,23,.6);animation:burstFly var(--dur) ease-out forwards
+/* ── GAME APP ── */
+#app{
+  position:relative;z-index:1;
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;
 }
-@keyframes burstFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(.25);opacity:0}}
-
-@media (max-width:640px){
-  .loader-mark,.brand-mark{width:50px;height:50px}
-  header.topbar{min-height:72px;padding-inline:18px}
-  #muteBtn{right:14px;width:40px;height:40px}
-  .panel,.reward-card{padding:24px 20px;border-radius:24px}
-  footer.bottombar{padding:12px 18px 22px}
+#logoHeader{
+  width:100%;flex-shrink:0;padding:14px 20px 10px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,rgba(5,14,18,.97) 0%,transparent 100%);
+  min-height:clamp(58px,14vw,88px);
+  position:relative;
 }
+#muteBtn{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  background:rgba(214,82,23,.12);
+  border:1px solid rgba(214,82,23,.32);
+  border-radius:8px;
+  width:clamp(34px,8vw,44px);height:clamp(34px,8vw,44px);
+  font-size:clamp(16px,4vw,22px);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+  color:#fff;
+}
+#muteBtn:active{background:rgba(214,82,23,.30);}
+#logoSlot{display:flex;align-items:center;gap:11px;}
+.logo-icon{width:clamp(34px,8vw,54px);height:clamp(34px,8vw,54px);background:var(--submitBtn);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,4.5vw,30px);box-shadow:0 0 22px rgba(214,82,23,.45);flex-shrink:0;}
+.logo-text{font-size:clamp(.9rem,4vw,1.7rem);letter-spacing:3px;text-transform:uppercase;background:var(--submitBtn);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(214,82,23,.5));}
+
+#canvasWrap{flex:1;width:100%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+#renderCanvas{width:100%;height:100%;display:block;touch-action:none;}
+#glowRing{position:absolute;pointer-events:none;z-index:0;width:min(70vw,320px);height:min(70vw,320px);border-radius:50%;background:radial-gradient(circle,rgba(214,82,23,.18) 0%,transparent 68%);left:50%;top:50%;transform:translate(-50%,-50%);animation:rp 2.8s ease-in-out infinite;}
+@keyframes rp{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(1.18);opacity:1}}
+
+#bottomBar{width:100%;flex-shrink:0;padding:10px 24px clamp(14px,5vw,32px);display:flex;flex-direction:column;align-items:center;gap:11px;background:linear-gradient(0deg,rgba(5,14,18,.97) 0%,transparent 100%);}
+#hintText{font-size:clamp(.68rem,3vw,.9rem);letter-spacing:3px;text-transform:uppercase;color:rgba(240,124,46,.72);transition:opacity .5s;animation:bl 2s ease-in-out infinite;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.18}}
+#openBtn{
+  cursor:pointer;border:none;
+  background:var(--submitBtn);color:var(--btnText);
+  font-family:var(--font);font-size:clamp(.85rem,4vw,1.1rem);
+  letter-spacing:4px;text-transform:uppercase;
+  padding:clamp(12px,3vw,17px) 0;border-radius:100px;
+  width:min(92%,380px);
+  box-shadow:0 5px 0 rgba(100,25,5,.85),0 9px 28px rgba(214,82,23,.28),inset 0 0 16px rgba(255,255,255,.15);
+  transition:transform .12s,box-shadow .12s;
+}
+#openBtn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(100,25,5,.85),inset 0 0 14px rgba(255,255,255,.10);}
+#openBtn:disabled{opacity:.45;pointer-events:none;}
+
+/* ── REWARD OVERLAY ── */
+#rwOverlay{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  z-index:150;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:rgba(5,10,14,.90);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  padding:24px;
+  min-height:100vh;
+  min-height:100dvh;
+}
+#rwOverlay.show{display:flex;}
+
+#rwCard{
+  width:min(96%,440px);
+  background:linear-gradient(168deg,#0d1f26 0%,#152c36 55%,#070d10 100%);
+  border:1px solid rgba(214,82,23,.35);
+  border-radius:20px;
+  padding:clamp(28px,6vw,44px) clamp(24px,6vw,44px);
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  box-shadow:0 0 0 1px rgba(240,124,46,.06),0 32px 80px rgba(0,0,0,.8),0 0 50px rgba(214,82,23,.22);
+  animation:cUp .6s cubic-bezier(.34,1.56,.64,1);
+  flex-shrink:0;
+}
+@keyframes cUp{from{opacity:0;transform:scale(.85) translateY(40px)}to{opacity:1;transform:none}}
+
+.rw-congrats{font-size:clamp(.75rem,3vw,.95rem);letter-spacing:4px;text-transform:uppercase;color:var(--orange2);filter:drop-shadow(0 0 8px rgba(214,82,23,.6));text-align:center;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 8px rgba(214,82,23,.6))}50%{filter:drop-shadow(0 0 22px rgba(240,124,46,.95))}}
+.rw-username{font-size:clamp(1.4rem,6vw,2.2rem);letter-spacing:2px;text-transform:uppercase;background:var(--submitBtn);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(214,82,23,.55));text-align:center;line-height:1.1;}
+#rwTag{font-size:clamp(.7rem,2.5vw,.84rem);letter-spacing:5px;text-transform:uppercase;color:rgba(240,124,46,.65);}
+#coinRow{display:flex;align-items:center;gap:16px;}
+#coinIcon{
+  width:clamp(56px,14vw,80px);height:clamp(56px,14vw,80px);
+  border-radius:50%;
+  background:radial-gradient(circle at 38% 36%,#ffd0a0 0%,#F07C2E 30%,#b84410 70%,#7a2a05 100%);
+  box-shadow:0 0 0 3px #a83a08,0 0 0 6px #D65217,0 0 28px rgba(214,82,23,.85),inset 0 2px 6px rgba(255,200,150,.4),inset 0 -3px 8px rgba(80,20,0,.4);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  animation:sc 1.5s ease-out;
+}
+#coinIcon::before{content:'$';font-family:"Fredoka One",cursive;font-size:clamp(26px,7vw,40px);color:#3a0800;text-shadow:0 1px 0 rgba(255,180,80,.6),0 -1px 2px rgba(80,20,0,.6);}
+@keyframes sc{0%{transform:rotateY(0) scale(.4);opacity:0}40%{transform:rotateY(720deg) scale(1.25);opacity:1}100%{transform:rotateY(720deg) scale(1)}}
+#coinAmt{font-size:clamp(2.8rem,12vw,5.5rem);line-height:1;background:linear-gradient(180deg,#ffd0a0 0%,#F07C2E 45%,#b84410 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 22px rgba(214,82,23,.80));font-family:'Nunito',sans-serif;font-weight:900;}
+.rw-divider{width:80%;height:1px;background:linear-gradient(90deg,transparent,rgba(214,82,23,.35),transparent);}
+.rw-footer{font-size:clamp(.68rem,2.5vw,.82rem);letter-spacing:3px;text-transform:uppercase;color:rgba(240,124,46,.45);text-align:center;line-height:1.6;}
+
+/* ── SAVING OVERLAY ── */
+#savingOverlay{
+  position:fixed;inset:0;z-index:180;
+  background:rgba(5,10,14,.75);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;gap:16px;flex-direction:column;
+}
+#savingOverlay.show{display:flex;}
+#savingOverlay .su-spinner{display:block;width:40px;height:40px;border-width:4px;}
+#savingOverlay p{font-size:.82rem;letter-spacing:4px;text-transform:uppercase;color:rgba(240,124,46,.8);}
+
+.cBurst{position:fixed;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#ffd0a0,#D65217);pointer-events:none;animation:cFly var(--dur) ease-out forwards;box-shadow:0 0 6px #D65217;z-index:60;}
+@keyframes cFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(.3);opacity:0}}
 </style>
 </head>
 <body>
-  <div id="loading">
-    <div class="loader-logo">
-      <div class="loader-mark">F</div>
-      <div class="loader-text">Fortuna Chest</div>
-    </div>
-    <div id="loadBar"><div id="loadFill"></div></div>
-    <div id="loadMsg">Cargando...</div>
+<div id="bgLayer"></div>
+
+<!-- ══════════════════════════════════════
+     AUDIO
+     ★ Colocá estos 3 archivos en la misma carpeta que index.html:
+       audio-bg.mp3     → música de fondo (loop)
+       audio-shake.mp3  → sonido al sacudir el cofre
+       audio-reward.mp3 → sonido al mostrar el premio
+══════════════════════════════════════ -->
+<audio id="audioBg"     src="audio-bg.mp3"     loop preload="auto"></audio>
+<audio id="audioShake"  src="audio-shake.mp3"  preload="auto"></audio>
+<audio id="audioReward" src="audio-reward.mp3" preload="auto"></audio>
+
+<!-- Botón mute (visible siempre) -->
+<button id="muteBtn" title="Silenciar / Activar sonido">🔊</button>
+
+<!-- LOADING -->
+<div id="loading">
+  <div id="loadLogoSlot">
+    <img src="logo-loading.png" alt="Logo" style="height:clamp(100px,12vw,80px)">
   </div>
+  <div id="loadBar"><div id="loadFill"></div></div>
+  <div id="loadMsg">Cargando...</div>
+</div>
 
-  <div id="screenUser">
-    <div class="panel">
-      <h2>¡Abrí tu cofre!</h2>
-      <div class="sub">Ingresá tu nombre de usuario para reclamar tu premio</div>
-      <div class="input-shell">
-        <input id="usernameInput" type="text" maxlength="30" placeholder="TU USUARIO" autocomplete="off" autocorrect="off" spellcheck="false" />
-        <div id="suError"></div>
-        <div id="suSpinner" class="su-spinner"></div>
-        <button id="btnJugar" class="primary-btn">Jugar</button>
-      </div>
-    </div>
+<!-- PANTALLA: INGRESÁ TU USUARIO -->
+<div id="screenUser">
+  <div class="su-card">
+    <div class="su-title">¡Abrí tu cofre!</div>
+    <div class="su-sub">Ingresá tu nombre de usuario<br>para reclamar tu premio</div>
+    <input id="usernameInput" type="text" maxlength="30"
+      placeholder="TU USUARIO" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div id="suError"></div>
+    <div class="su-spinner" id="suSpinner"></div>
+    <button id="btnJugar">Jugar</button>
   </div>
+</div>
 
-  <div id="screenBlocked">
-    <div class="panel">
-      <div class="blocked-icon">🎁</div>
-      <h2>Ya participaste</h2>
-      <div class="sub">Este dispositivo o este usuario ya reclamó un premio</div>
-      <div class="blocked-name" id="sbName">—</div>
-      <div class="prev-prize">
-        <div class="label">Premio registrado</div>
-        <div class="value" id="sbPrevCoins">0 fichas</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">F</div>
-        <div class="brand-text">Fortuna Chest</div>
-      </div>
-      <button id="muteBtn" title="Silenciar / Activar sonido">🔊</button>
-    </header>
-
-    <div id="canvasWrap">
-      <div id="stageAura"></div>
-      <canvas id="renderCanvas"></canvas>
-    </div>
-
-    <footer class="bottombar">
-      <div id="hintText">⛃ Tocá el cofre para abrirlo ⛃</div>
-      <button id="openBtn" class="primary-btn">Abrir cofre</button>
-    </footer>
-  </div>
-
-  <div id="rwOverlay">
-    <div class="reward-card">
-      <div class="reward-top">¡Felicitaciones!</div>
-      <div class="reward-user" id="rwUsername">—</div>
-      <div class="reward-tag">Recibiste</div>
-      <div class="reward-row">
-        <div class="coin-badge"></div>
-        <div id="coinAmt">0</div>
-      </div>
-      <div class="reward-divider"></div>
-      <div class="reward-footer">Tu premio fue registrado.<br>Gracias por participar.</div>
+<!-- PANTALLA: YA PARTICIPASTE -->
+<div id="screenBlocked">
+  <div class="sb-card">
+    <div class="sb-icon">🔒</div>
+    <div class="sb-title">Ya participaste</div>
+    <div class="sb-name" id="sbName">—</div>
+    <div class="sb-sub">Ya usaste tu oportunidad<br>de recibir fichas gratis</div>
+    <div class="sb-divider"></div>
+    <div class="sb-prev-prize">
+      <div class="sb-prev-label">Tu premio fue</div>
+      <div class="sb-prev-coins" id="sbPrevCoins">—</div>
     </div>
   </div>
+</div>
 
-  <div id="savingOverlay">
-    <div class="su-spinner show"></div>
-    <p>Guardando premio</p>
+<!-- JUEGO -->
+<div id="app">
+  <header id="logoHeader">
+    <div id="logoSlot">
+      <img src="logo-header.png" alt="Logo" style="height:clamp(110px,9vw,58px)">
+    </div>
+    <button id="muteBtn" title="Silenciar / Activar sonido">🔊</button>
+  </header>
+  <div id="canvasWrap">
+    <div id="glowRing"></div>
+    <canvas id="renderCanvas"></canvas>
   </div>
+  <div id="bottomBar">
+    <div id="hintText">𓅛 Tocá el cofre para abrirlo 𓅛</div>
+    <button id="openBtn">Abrir Cofre</button>
+  </div>
+</div>
+
+<!-- REWARD OVERLAY -->
+<div id="rwOverlay">
+  <div id="rwCard">
+    <div class="rw-congrats">¡Felicitaciones!</div>
+    <div class="rw-username" id="rwUsername">—</div>
+    <div id="rwTag">Recibiste</div>
+    <div id="coinRow">
+      <div id="coinIcon"></div>
+      <div id="coinAmt">0</div>
+    </div>
+    <div class="rw-divider"></div>
+    <div class="rw-footer">Tu premio ha sido registrado.<br>¡Gracias por participar!</div>
+  </div>
+</div>
+
+<!-- SAVING OVERLAY -->
+<div id="savingOverlay">
+  <div class="su-spinner"></div>
+  <p>Guardando premio...</p>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@4/dist/fp.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.babylonjs.com/babylon.js"></script>
+
 <script>
 'use strict';
 
-/* ============================================================
-   CONFIG
-   Reemplazá estos dos valores por los de tu proyecto original.
-============================================================ */
+/* ════════════════════════════════════════════════════
+   AUDIO SYSTEM
+   ★ Archivos necesarios junto a index.html:
+     sounds/bg-music.mp3    — música de fondo (loop)
+     sounds/chest-shake.mp3 — sonido al sacudir el cofre
+     sounds/reward.mp3      — fanfare al mostrar el premio
+════════════════════════════════════════════════════ */
+let audioMuted = false;
+const SFX = { bg:null, shake:null, reward:null };
+
+function audioSetup(){
+  SFX.bg     = new Audio('sounds/bg-music.mp3');
+  SFX.bg.loop   = true;
+  SFX.bg.volume = 0.30;
+
+  SFX.shake  = new Audio('sounds/chest-shake.mp3');
+  SFX.shake.volume = 0.85;
+
+  SFX.reward = new Audio('sounds/reward.mp3');
+  SFX.reward.volume = 0.90;
+
+  try{
+    if(localStorage.getItem('chest_muted')==='1') audioMuted=true;
+  }catch(e){}
+  $('muteBtn').textContent = audioMuted ? '🔇' : '🔊';
+
+  $('muteBtn').addEventListener('click', ()=>{
+    audioMuted = !audioMuted;
+    Object.values(SFX).forEach(a=>{ if(a) a.muted=audioMuted; });
+    $('muteBtn').textContent = audioMuted ? '🔇' : '🔊';
+    try{ localStorage.setItem('chest_muted', audioMuted?'1':'0'); }catch(e){}
+  });
+
+  const startBg = ()=>{
+    if(!audioMuted) SFX.bg.play().catch(()=>{});
+    document.removeEventListener('pointerdown', startBg);
+    document.removeEventListener('keydown',     startBg);
+  };
+  document.addEventListener('pointerdown', startBg);
+  document.addEventListener('keydown',     startBg);
+}
+
+function playSfx(key){
+  if(audioMuted) return;
+  const a = SFX[key];
+  if(!a) return;
+  a.currentTime = 0;
+  a.play().catch(()=>{});
+}
+
+/* ════════════════════════════════════════════════════
+   ★★★ CONFIGURACIÓN SUPABASE ★★★
+════════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://seegvnuplmkkaznzywur.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlZWd2bnVwbG1ra2F6bnp5d3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MjMzMjMsImV4cCI6MjA4OTE5OTMyM30.cQoOUof3cDQqnXc84WyjD6gdjEW47LmUOnmLFZVHEKg';
 const TABLE = 'jugadas';
 const SOURCE_HTML = 'fenix';
-const LS_KEY = `chest_played_v2_${SOURCE_HTML}`;
 
-const PRIZES = [
-  { coins: 1000, w: 40 },
-  { coins: 1500, w: 30 },
-  { coins: 2000, w: 20 },
-  { coins: 3000, w:  9 },
-  { coins: 5000, w:  1 },
-];
-
-const $ = (id) => document.getElementById(id);
-const RR  = (a,b) => a + Math.random() * (b-a);
-const clp = (v,a,b) => Math.max(a, Math.min(b, v));
-const lrp = (a,b,t) => a + (b-a) * t;
-const eio = (t) => t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;
-const eob = (t) => { const c = 1.70158, c3 = c + 1; return 1 + c3*Math.pow(t-1,3) + c*Math.pow(t-1,2); };
-const fmt = (n) => n.toLocaleString('es-AR');
-const pickPrize = () => {
-  const tot = PRIZES.reduce((s,p) => s + p.w, 0);
-  let r = Math.random() * tot;
-  for (const p of PRIZES) { r -= p.w; if (r <= 0) return p.coins; }
-  return PRIZES[0].coins;
-};
+const LS_KEY = `chest_played_v1_${SOURCE_HTML}`;
 
 function lsGetPlay(){
   try {
@@ -308,60 +457,53 @@ function lsGetPlay(){
 }
 function lsSavePlay(username, premio){
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify({ username: username.toUpperCase(), premio, ts: Date.now() }));
-  } catch(e){ console.warn('localStorage no disponible'); }
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      username: username.toUpperCase(),
+      premio,
+      ts: Date.now()
+    }));
+  } catch(e){ console.warn('localStorage not available'); }
 }
 
-/* ============================================================
-   AUDIO
-============================================================ */
-let audioMuted = false;
-const SFX = { bg:null, shake:null, reward:null };
-function audioSetup(){
-  SFX.bg = new Audio('sounds/bg-music.mp3');
-  SFX.bg.loop = true;
-  SFX.bg.volume = 0.30;
+/* ════════════════════════════════════════════════════
+   PREMIOS FIJOS
+════════════════════════════════════════════════════ */
+const PRIZES=[
+  {coins:1000, w:40},
+  {coins:1500, w:30},
+  {coins:2000, w:20},
+  {coins:3000, w: 9},
+  {coins:5000, w: 1},
+];
+const pickPrize=()=>{
+  const tot=PRIZES.reduce((s,p)=>s+p.w,0); let r=Math.random()*tot;
+  for(const p of PRIZES){r-=p.w; if(r<=0) return p.coins;} return PRIZES[0].coins;
+};
 
-  SFX.shake = new Audio('sounds/chest-shake.mp3');
-  SFX.shake.volume = 0.85;
+/* ════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════ */
+const RR  = (a,b) => a+Math.random()*(b-a);
+const clp = (v,a,b) => Math.max(a,Math.min(b,v));
+const lrp = (a,b,t) => a+(b-a)*t;
+const eio = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+const eob = t => { const c=1.70158,c3=c+1; return 1+c3*Math.pow(t-1,3)+c*Math.pow(t-1,2); };
+const fmt = n => n.toLocaleString('es-AR');
+const $   = id => document.getElementById(id);
 
-  SFX.reward = new Audio('sounds/reward.mp3');
-  SFX.reward.volume = 0.95;
+/* ════════════════════════════════════════════════════
+   GLOBALS
+════════════════════════════════════════════════════ */
+let db, visitorId, currentUsername;
+let canvas, engine, scene, cam;
+let root, hingePivot, innerL, glowL;
+let coinPS, hitList=[];
+let state='idle', stateT=0, idleT=0;
+const SHAKE=.80, OPEN=1.20;
 
-  try { if(localStorage.getItem('chest_muted') === '1') audioMuted = true; } catch(e){}
-  syncMuteUi();
-
-  $('muteBtn').addEventListener('click', () => {
-    audioMuted = !audioMuted;
-    Object.values(SFX).forEach(a => { if (a) a.muted = audioMuted; });
-    try { localStorage.setItem('chest_muted', audioMuted ? '1' : '0'); } catch(e){}
-    syncMuteUi();
-  });
-
-  const startBg = () => {
-    if (!audioMuted && SFX.bg) SFX.bg.play().catch(()=>{});
-    document.removeEventListener('pointerdown', startBg);
-    document.removeEventListener('keydown', startBg);
-  };
-  document.addEventListener('pointerdown', startBg);
-  document.addEventListener('keydown', startBg);
-}
-function syncMuteUi(){
-  $('muteBtn').textContent = audioMuted ? '🔇' : '🔊';
-  $('muteBtn').classList.toggle('muted', audioMuted);
-}
-function playSfx(key){
-  if(audioMuted) return;
-  const a = SFX[key];
-  if(!a) return;
-  a.currentTime = 0;
-  a.play().catch(()=>{});
-}
-
-/* ============================================================
-   SUPABASE / DATA
-============================================================ */
-let db;
+/* ════════════════════════════════════════════════════
+   SUPABASE HELPERS
+════════════════════════════════════════════════════ */
 async function checkByFingerprint(fp){
   if(!db || !SUPABASE_URL.startsWith('http')) return null;
   try{
@@ -371,13 +513,9 @@ async function checkByFingerprint(fp){
       .eq('fingerprint', fp)
       .eq('source_html', SOURCE_HTML)
       .maybeSingle();
-
     if(error) console.warn('FP check error', error);
     return data;
-  }catch(e){
-    console.warn('FP check failed', e);
-    return null;
-  }
+  }catch(e){ console.warn('FP check failed', e); return null; }
 }
 
 async function checkByUsername(name){
@@ -389,13 +527,9 @@ async function checkByUsername(name){
       .eq('username', name.toUpperCase())
       .eq('source_html', SOURCE_HTML)
       .maybeSingle();
-
     if(error) console.warn('Username check error', error);
     return data;
-  }catch(e){
-    console.warn('Username check failed', e);
-    return null;
-  }
+  }catch(e){ console.warn('Username check failed', e); return null; }
 }
 
 async function savePlay(username, fp, premio){
@@ -409,360 +543,351 @@ async function savePlay(username, fp, premio){
         premio,
         source_html: SOURCE_HTML
       }]);
-
-    if(error){
-      console.error('Save error', error);
-      return false;
-    }
+    if(error){ console.error('Save error', error); return false; }
     return true;
-  }catch(e){
-    console.error('Save failed', e);
-    return false;
-  }
+  }catch(e){ console.error('Save failed', e); return false; }
 }
 
-/* ============================================================
+/* ════════════════════════════════════════════════════
    SCREENS
-============================================================ */
+════════════════════════════════════════════════════ */
 function showUserScreen(){ $('screenUser').classList.add('show'); }
 function hideUserScreen(){ $('screenUser').classList.remove('show'); }
 function showBlocked(username, premio){
-  $('sbName').textContent = (username || '—').toUpperCase();
-  $('sbPrevCoins').textContent = fmt(premio || 0) + ' fichas';
+  $('sbName').textContent = username.toUpperCase();
+  $('sbPrevCoins').textContent = fmt(premio) + ' fichas';
   $('screenBlocked').classList.add('show');
 }
+
+/* ════════════════════════════════════════════════════
+   USERNAME SCREEN LOGIC
+════════════════════════════════════════════════════ */
 function setError(msg){
-  $('suError').textContent = msg || '';
-  $('suError').classList.toggle('show', !!msg);
+  const el=$('suError');
+  el.textContent=msg;
+  el.classList.toggle('show', !!msg);
 }
 function setLoading(on){
-  $('suSpinner').classList.toggle('show', on);
-  $('btnJugar').disabled = on;
+  $('suSpinner').classList.toggle('show',on);
+  $('btnJugar').disabled=on;
+}
+function setupUserScreen(){
+  const inp=$('usernameInput');
+  inp && inp.addEventListener('keydown', e=>{ if(e.key==='Enter') $('btnJugar').click(); });
+  $('btnJugar').addEventListener('click', async()=>{
+    const name = (inp.value||'').trim();
+    if(name.length<2){ setError('Mínimo 2 caracteres'); return; }
+    if(name.length>30){ setError('Máximo 30 caracteres'); return; }
+    setError('');
+    setLoading(true);
+    const existing = await checkByUsername(name);
+    if(existing){ setLoading(false); setError('Este usuario ya participó'); return; }
+    const fpCheck = await checkByFingerprint(visitorId);
+    if(fpCheck){ setLoading(false); hideUserScreen(); showBlocked(fpCheck.username, fpCheck.premio); return; }
+    currentUsername = name;
+    setLoading(false);
+    hideUserScreen();
+  });
 }
 
-/* ============================================================
-   BABYLON STATE
-============================================================ */
-let visitorId = null;
-let currentUsername = null;
-let canvas, engine, scene, cam;
-let root, hingePivot, innerL, glowLayer, coinPS;
-let hitList = [];
-let state = 'idle', stateT = 0, idleT = 0;
-const SHAKE = .80, OPEN = 1.20;
-
-function pbr(name, r,g,b, metallic=0, roughness=.82, er=0, eg=0, eb=0){
-  const m = new BABYLON.PBRMaterial(name, scene);
-  m.albedoColor = new BABYLON.Color3(r,g,b);
-  m.metallic = metallic;
-  m.roughness = roughness;
-  if(er || eg || eb) m.emissiveColor = new BABYLON.Color3(er,eg,eb);
+/* ════════════════════════════════════════════════════
+   MATERIAL HELPER
+════════════════════════════════════════════════════ */
+function pbr(n,r,g,b,met=0,rou=.82,er=0,eg=0,eb=0){
+  const m=new BABYLON.PBRMaterial(n,scene);
+  m.albedoColor=new BABYLON.Color3(r,g,b);
+  m.metallic=met; m.roughness=rou;
+  if(er||eg||eb) m.emissiveColor=new BABYLON.Color3(er,eg,eb);
   return m;
 }
 
-function makeBadgeTexture(letter='F'){
-  const dt = new BABYLON.DynamicTexture('badgeTex', { width: 512, height: 512 }, scene, true);
-  const ctx = dt.getContext();
-  const g = ctx.createLinearGradient(0,0,512,512);
-  g.addColorStop(0, '#F07C2E');
-  g.addColorStop(.55, '#D65217');
-  g.addColorStop(1, '#8E2E08');
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.roundRect(56,56,400,400,74);
-  ctx.fill();
-
-  ctx.lineWidth = 16;
-  ctx.strokeStyle = 'rgba(255,255,255,.16)';
-  ctx.stroke();
-
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 280px Montserrat';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0,0,0,.35)';
-  ctx.shadowBlur = 24;
-  ctx.fillText(letter, 256, 272);
-  dt.update();
-
-  const mat = new BABYLON.StandardMaterial('badgeMat', scene);
-  mat.diffuseTexture = dt;
-  mat.emissiveColor = new BABYLON.Color3(.16,.07,.02);
-  mat.specularColor = new BABYLON.Color3(.4,.4,.4);
-  return mat;
-}
-
+/* ════════════════════════════════════════════════════
+   BUILD CHEST
+   Fenix palette: orange/teal/dark
+   Letter on badge: F  (instead of E — no bottom bar)
+════════════════════════════════════════════════════ */
 function buildChest(){
-  hitList = [];
-  root = new BABYLON.TransformNode('root', scene);
+  const B=(n,w,h,d)=>BABYLON.MeshBuilder.CreateBox(n,{width:w,height:h,depth:d},scene);
+  const C=(n,h,dia,t=12)=>BABYLON.MeshBuilder.CreateCylinder(n,{height:h,diameter:dia,tessellation:t},scene);
+  const S=(n,dia)=>BABYLON.MeshBuilder.CreateSphere(n,{diameter:dia,segments:8},scene);
 
-  const B = (n,w,h,d) => BABYLON.MeshBuilder.CreateBox(n,{width:w,height:h,depth:d},scene);
-  const C = (n,h,dia,t=24) => BABYLON.MeshBuilder.CreateCylinder(n,{height:h,diameter:dia,tessellation:t},scene);
-  const put = (m, parent, x,y,z) => { m.parent = parent; m.position.set(x,y,z); return m; };
-  const reg = (m) => { hitList.push(m); return m; };
+  // Fenix chest palette — teal/dark with orange accents
+  const mW1  = pbr('mW1', .05,.18,.22, 0,.88);   // dark teal plank
+  const mW2  = pbr('mW2', .07,.24,.30, 0,.84);   // teal plank
+  const mW3  = pbr('mW3', .03,.12,.16, 0,.90);   // deep teal plank
+  const mGold= pbr('mGld',.84,.32,.07, 1,.08, .22,.08,.01); // orange metal
+  const mBras= pbr('mBrs',.65,.25,.05, 1,.18);   // orange brass pillar
+  const mLid = pbr('mLid',.04,.12,.16, .65,.20); // dark teal lid
+  const mRed = pbr('mRed',.60,.18,.04, 0,.68);   // orange badge
+  const mIn  = pbr('mIn', .06,.20,.26, 0,.55, .04,.10,.14); // teal inner glow
+  const mBolt= pbr('mBlt',.96,.40,.08, 1,.05, .40,.16,.02); // orange bolt
 
-  const mWood = pbr('wood', .19,.12,.07, 0,.94);
-  const mWood2 = pbr('wood2', .14,.08,.05, 0,.95);
-  const mTrim = pbr('trim', .84,.32,.09, .88,.22, .08,.02,0);
-  const mTrimDark = pbr('trimDark', .48,.18,.05, .82,.34);
-  const mInner = pbr('inner', .04,.11,.08, 0,.72, .00,.45,.28);
-  const badgeMat = makeBadgeTexture('F');
+  root=new BABYLON.TransformNode('root',scene);
+  const put=(m,par,x,y,z)=>{m.parent=par;m.position.set(x,y,z);return m;};
+  const reg=(m)=>{hitList.push(m);return m;};
 
-  const base = reg(put(B('base', 2.85, .22, 1.95), root, 0, .11, 0));
-  base.material = mTrimDark;
-
-  const body = reg(put(B('body', 2.55, 1.12, 1.70), root, 0, .70, 0));
-  body.material = mWood;
-
-  const frontBand = reg(put(B('frontBand', 2.62, .18, .08), root, 0, 1.05, .88));
-  frontBand.material = mTrim;
-  const backBand = reg(put(B('backBand', 2.62, .18, .08), root, 0, 1.05, -.88));
-  backBand.material = mTrim;
-
-  [-1.22, 1.22].forEach((x,i) => {
-    const c1 = reg(put(C('corner'+i+'a', 1.26, .16), root, x, .74, .80));
-    c1.material = mTrimDark;
-    const c2 = reg(put(C('corner'+i+'b', 1.26, .16), root, x, .74, -.80));
-    c2.material = mTrimDark;
+  const PW=2.70,PH=.22,PD=1.92;
+  reg(put(B('base',PW,PH,PD),root,0,PH/2,0)).material=mBras;
+  [[PW,.13,.13,0,PH+.04,PD/2-.05],[PW,.13,.13,0,PH+.04,-PD/2+.05],
+   [.13,.13,PD,-PW/2+.05,PH+.04,0],[.13,.13,PD,PW/2-.05,PH+.04,0]]
+  .forEach(([w,h,d,x,y,z],i)=>{put(B('br'+i,w,h,d),root,x,y,z).material=mGold;});
+  [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(([sx,sz],i)=>{
+    const ts=reg(put(S('ts'+i,.18),root,sx*(PW/2-.08),PH+.06,sz*(PD/2-.08)));
+    ts.material=mGold; glowL.addIncludedOnlyMesh(ts);
   });
 
-  const facePlate = reg(put(B('facePlate', .92, .58, .08), root, 0, .72, .92));
-  facePlate.material = mTrim;
-  const emblem = reg(put(B('emblem', .60, .38, .10), root, 0, .72, .98));
-  emblem.material = badgeMat;
+  const BW=2.16,BH=1.60,BD=1.62;
+  const BY0=PH+.04;
+  const pH=BH/6;
+  const woods=[mW1,mW2,mW3,mW2,mW1,mW3];
+  for(let i=0;i<6;i++){
+    const py=BY0+pH*i+pH/2;
+    reg(put(B('pl'+i,BW,pH-.014,BD),root,0,py,0)).material=woods[i];
+  }
+  const BYc=BY0+BH/2;
 
-  const clasp = reg(put(B('clasp', .18, .52, .10), root, 0, .36, .96));
-  clasp.material = mTrimDark;
-  const claspRing = reg(put(C('claspRing', .06, .30, 28), root, 0, .18, 1.00));
-  claspRing.rotation.x = Math.PI/2;
-  claspRing.material = mTrim;
-
-  const innerBox = put(B('innerBox', 2.15, .50, 1.28), root, 0, .68, 0);
-  innerBox.material = mInner;
-
-  hingePivot = new BABYLON.TransformNode('hingePivot', scene);
-  hingePivot.parent = root;
-  hingePivot.position.set(0, 1.14, -.68);
-
-  const lid = reg(put(B('lid', 2.60, .62, 1.56), hingePivot, 0, .26, .42));
-  lid.material = mWood2;
-  const lidTrimFront = reg(put(B('lidTrimFront', 2.68, .12, .08), hingePivot, 0, .28, 1.22));
-  lidTrimFront.material = mTrim;
-  const lidTrimTop = reg(put(B('lidTrimTop', 2.68, .10, 1.64), hingePivot, 0, .60, .42));
-  lidTrimTop.material = mTrim;
-  const lidBackBar = reg(put(B('lidBackBar', 2.68, .12, .10), hingePivot, 0, .26, -.38));
-  lidBackBar.material = mTrimDark;
-
-  [-.95, 0, .95].forEach((x,idx) => {
-    const hinge = reg(put(C('hinge'+idx, .12, .18, 18), hingePivot, x, .10, -.38));
-    hinge.rotation.x = Math.PI/2;
-    hinge.material = mTrim;
+  const CW=.26,CD=.26,CH=BH+.26;
+  const pilY=BY0+CH/2;
+  [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(([sx,sz],i)=>{
+    reg(put(B('cp'+i,CW,CH,CD),root,sx*(BW/2+.02),pilY,sz*(BD/2+.02))).material=mBras;
+  });
+  const bodyTop=BY0+BH;
+  [[-1,1],[1,1]].forEach(([sx])=>{
+    [.25,.50,.75].forEach(f=>{
+      const st=put(C('st'+sx+'_'+f,.075,.14,8),root,sx*(BW/2+.02),BY0+BH*f,BD/2+.02+.085);
+      st.rotation.x=Math.PI/2; st.material=mGold; glowL.addIncludedOnlyMesh(st);
+    });
+  });
+  [.20,.82].forEach((f,i)=>{
+    put(B('band'+i,BW+CW*1.2,.11,BD+CD*1.2),root,0,BY0+BH*f,0).material=mGold;
   });
 
-  const sideL = reg(put(B('sideL', .10, .92, 1.46), root, -1.28, .72, 0));
-  sideL.material = mTrim;
-  const sideR = reg(put(B('sideR', .10, .92, 1.46), root, 1.28, .72, 0));
-  sideR.material = mTrim;
+  const ig=put(B('ig',BW-.06,.05,BD-.06),root,0,BY0+.03,0);
+  ig.material=mIn; glowL.addIncludedOnlyMesh(ig);
 
-  hitList.forEach(m => {
-    m.receiveShadows = true;
-    if (glowLayer) glowLayer.addIncludedOnlyMesh(m);
+  const bZ=BD/2+.055, bY=BYc+.06;
+  const disc=reg(put(C('disc',.08,.78,32),root,0,bY,bZ));
+  disc.rotation.x=Math.PI/2; disc.material=mRed; glowL.addIncludedOnlyMesh(disc);
+  const ring=reg(put(BABYLON.MeshBuilder.CreateTorus('ring',{diameter:.92,thickness:.055,tessellation:32},scene),root,0,bY,bZ));
+  ring.rotation.x=Math.PI/2; ring.material=mGold; glowL.addIncludedOnlyMesh(ring);
+  const ring2=put(BABYLON.MeshBuilder.CreateTorus('ring2',{diameter:.64,thickness:.024,tessellation:28},scene),root,0,bY,bZ+.02);
+  ring2.rotation.x=Math.PI/2; ring2.material=mGold;
+
+  // ─── "F" letter (camera at +Z → screen-left = world +X)
+  // Vertical bar on screen-LEFT → world +X
+  const fL=put(B('fL',.088,.46,.088),root,+.095,bY,bZ+.092);
+  fL.material=mBolt; glowL.addIncludedOnlyMesh(fL);
+  // Top horizontal (full width)
+  const fT=put(B('fT',.24,.086,.088),root,-.018,bY+.19,bZ+.092);
+  fT.material=mBolt; glowL.addIncludedOnlyMesh(fT);
+  // Mid horizontal (slightly shorter, F has no bottom bar unlike E)
+  const fM=put(B('fM',.20,.076,.088),root,-.022,bY+.02,bZ+.092);
+  fM.material=mBolt; glowL.addIncludedOnlyMesh(fM);
+  // NOTE: NO bottom horizontal — that's what makes it F, not E
+
+  const pip=reg(put(S('pip',.13),root,0,bY+.46,bZ));
+  pip.material=mGold; glowL.addIncludedOnlyMesh(pip);
+
+  const LW=BW+CW*1.7,LH=.50,LD=BD+CD*1.7;
+  const backZ=-BD/2-CD*.06;
+  hingePivot=new BABYLON.TransformNode('hinge',scene);
+  hingePivot.parent=root; hingePivot.position.set(0,bodyTop,backZ);
+  reg(put(B('lidB',LW,LH,LD),hingePivot,0,LH/2,LD/2)).material=mLid;
+  put(B('lidRim',LW+.02,.09,LD+.02),hingePivot,0,.01,LD/2).material=mGold;
+  put(B('lidBnd',LW+.02,.10,LD+.02),hingePivot,0,LH*.56,LD/2).material=mBras;
+  [-.60,0,.60].forEach((x,i)=>{
+    const hc=put(C('hc'+i,.28,.17,10),hingePivot,x,.04,.10);
+    hc.rotation.x=Math.PI/2; hc.material=mBras;
   });
+  hitList.forEach(m=>m.receiveShadows=true);
 }
 
+/* ════════════════════════════════════════════════════
+   BUILD DECORATIONS
+════════════════════════════════════════════════════ */
 function buildDecorations(){
-  const chipMatA = pbr('chipA', .84,.32,.09, .88,.20, .08,.02,0);
-  const chipMatB = pbr('chipB', .06,.06,.06, .1,.55);
-  const chipMatC = pbr('chipC', .00,.62,.40, .18,.35, .00,.08,.05);
+  const B=(n,w,h,d)=>BABYLON.MeshBuilder.CreateBox(n,{width:w,height:h,depth:d},scene);
+  const C=(n,h,dia,t=28)=>BABYLON.MeshBuilder.CreateCylinder(n,{height:h,diameter:dia,tessellation:t},scene);
+  // Orange chips instead of red — matches Fenix palette
+  const mCR  = pbr('cR',  .84,.32,.07, 0,.68);   // orange chip
+  const mCBk = pbr('cBk', .06,.16,.20, .2,.62);  // dark teal chip
+  const mCG  = pbr('cG',  .84,.32,.07, 1,.07, .22,.08,.01); // orange rim
+  const mDR  = pbr('dR',  .84,.32,.07, 0,.68);   // orange dice
+  const mDot = pbr('dDt', .96,.93,.84, 0,.80);
 
-  function stack(id, x, z, n, startOrange=true){
-    for(let i=0;i<n;i++){
-      const m = BABYLON.MeshBuilder.CreateCylinder('chip'+id+'_'+i, { height:.06, diameter:.42, tessellation:28 }, scene);
-      m.position.set(x, .06 + i*.065, z);
-      m.material = i % 3 === 0 ? chipMatC : (startOrange ? chipMatA : chipMatB);
-      if(i % 2 === 0) m.material = startOrange ? chipMatA : chipMatB;
-      if(i % 2 !== 0) m.material = startOrange ? chipMatB : chipMatA;
-      m.receiveShadows = true;
-      glowLayer.addIncludedOnlyMesh(m);
+  function chipStack(id,cx,cz,count,startRed){
+    for(let i=0;i<count;i++){
+      const y=.040+i*.083, isRed=startRed?(i%2===0):(i%2!==0), n='cs'+id+'_'+i;
+      const body=C(n+'b',.082,.54,28); body.position.set(cx,y,cz);
+      body.material=isRed?mCR:mCBk; body.receiveShadows=true;
+      glowL.addIncludedOnlyMesh(body);
+      const rim=BABYLON.MeshBuilder.CreateTorus(n+'r',{diameter:.58,thickness:.052,tessellation:28},scene);
+      rim.position.set(cx,y,cz); rim.rotation.x=Math.PI/2; rim.material=mCG;
+      glowL.addIncludedOnlyMesh(rim);
     }
   }
-  stack('a', -1.95, .55, 6, true);
-  stack('b',  1.95, .45, 5, false);
-  stack('c', -1.75,-.35, 4, true);
-  stack('d',  1.72,-.42, 4, false);
-
-  function glowPillar(id, x, z){
-    const p = BABYLON.MeshBuilder.CreateCylinder('pillar'+id, { height:1.4, diameter:.08, tessellation:12 }, scene);
-    p.position.set(x, .70, z);
-    p.material = pbr('pillarM'+id, .84,.32,.09, .9,.22, .09,.02,0);
-    glowLayer.addIncludedOnlyMesh(p);
+  function faceChip(id,cx,cy,cz,tilt,ryaw,isRed){
+    const g=new BABYLON.TransformNode('fc'+id,scene);
+    g.position.set(cx,cy,cz); g.rotation.set(-Math.PI/2+tilt,ryaw,0);
+    const body=C('fc'+id+'b',.082,.54,28); body.parent=g;
+    body.material=isRed?mCR:mCBk; glowL.addIncludedOnlyMesh(body);
+    const rim=BABYLON.MeshBuilder.CreateTorus('fc'+id+'r',{diameter:.58,thickness:.052,tessellation:28},scene);
+    rim.parent=g; rim.rotation.x=Math.PI/2; rim.material=mCG; glowL.addIncludedOnlyMesh(rim);
+    const rin=BABYLON.MeshBuilder.CreateTorus('fc'+id+'i',{diameter:.40,thickness:.020,tessellation:24},scene);
+    rin.parent=g; rin.rotation.x=Math.PI/2; rin.material=mCG; glowL.addIncludedOnlyMesh(rin);
   }
-  glowPillar('1', -2.25, .90);
-  glowPillar('2',  2.25, .90);
-  glowPillar('3', -2.25,-.90);
-  glowPillar('4',  2.25,-.90);
+  function makeDie(id,px,py,pz,rx,ry,rz){
+    const g=new BABYLON.TransformNode('d'+id,scene);
+    g.position.set(px,py,pz); g.rotation.set(rx,ry,rz);
+    const box=B('d'+id+'b',.46,.46,.46); box.parent=g; box.material=mDR; box.receiveShadows=true;
+    glowL.addIncludedOnlyMesh(box);
+    const dS=.070, dF=.242;
+    function dot(dx,dy,dz){
+      const s=BABYLON.MeshBuilder.CreateSphere('d'+id+'_'+[dx,dy,dz].join('_'),{diameter:dS,segments:6},scene);
+      s.parent=g; s.position.set(dx,dy,dz); s.material=mDot;
+    }
+    dot(0,0,dF);
+    dot(-.085,.085,-dF);dot(.085,.085,-dF);dot(-.085,0,-dF);dot(.085,0,-dF);dot(-.085,-.085,-dF);dot(.085,-.085,-dF);
+    dot(dF,.085,-.085);dot(dF,-.085,.085);
+    dot(-dF,.085,.085);dot(-dF,.085,-.085);dot(-dF,0,0);dot(-dF,-.085,.085);dot(-dF,-.085,-.085);
+    dot(-.085,dF,.085);dot(0,dF,0);dot(.085,dF,-.085);
+    dot(-.085,-dF,.085);dot(.085,-dF,.085);dot(-.085,-dF,-.085);dot(.085,-dF,-.085);
+  }
+
+  chipStack('lm',-2.55, 0.10,6,true);
+  chipStack('ls',-2.82,-0.42,3,false);
+  faceChip ('lf',-2.22, 0.22,0.85,0.38, 0.22,true);
+  makeDie  ('l', -2.82, 0.23,0.70,.44,.72,.32);
+  chipStack('rm', 2.55, 0.10,6,false);
+  chipStack('rs', 2.82,-0.42,3,true);
+  faceChip ('rf', 2.22, 0.22,0.85,0.38,-0.22,false);
+  makeDie  ('r',  2.82, 0.23,0.70,-.36,.55,-.48);
 }
 
+/* ════════════════════════════════════════════════════
+   PARTICLES
+════════════════════════════════════════════════════ */
 function buildParticles(){
-  coinPS = new BABYLON.ParticleSystem('coins', 450, scene);
-  coinPS.particleTexture = new BABYLON.Texture('https://assets.babylonjs.com/textures/flare.png', scene);
-  coinPS.emitter = new BABYLON.Vector3(0, 1.45, 0);
-  coinPS.minEmitBox = new BABYLON.Vector3(-.22, 0, -.22);
-  coinPS.maxEmitBox = new BABYLON.Vector3(.22, .12, .22);
-  coinPS.color1 = new BABYLON.Color4(.94, .48, .18, 1);
-  coinPS.color2 = new BABYLON.Color4(1, .75, .34, 1);
-  coinPS.colorDead = new BABYLON.Color4(.7, .25, .05, 0);
-  coinPS.minSize = .06;
-  coinPS.maxSize = .16;
-  coinPS.minLifeTime = .35;
-  coinPS.maxLifeTime = .85;
-  coinPS.emitRate = 0;
-  coinPS.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD;
-  coinPS.gravity = new BABYLON.Vector3(0, -5.5, 0);
-  coinPS.direction1 = new BABYLON.Vector3(-1.5, 2.5, -1.5);
-  coinPS.direction2 = new BABYLON.Vector3( 1.5, 4.0,  1.5);
-  coinPS.minAngularSpeed = 0;
-  coinPS.maxAngularSpeed = Math.PI;
-  coinPS.minEmitPower = .8;
-  coinPS.maxEmitPower = 2.3;
-  coinPS.updateSpeed = .014;
-  coinPS.stop();
+  coinPS=new BABYLON.ParticleSystem('cp',260,scene);
+  coinPS.particleTexture=new BABYLON.Texture('https://assets.babylonjs.com/textures/flare.png',scene);
+  coinPS.emitter=new BABYLON.Vector3(0,1.80,.40);
+  coinPS.minEmitBox=new BABYLON.Vector3(-.55,0,-.3); coinPS.maxEmitBox=new BABYLON.Vector3(.55,.2,.3);
+  // Orange particles for Fenix
+  coinPS.color1=new BABYLON.Color4(1,.55,.15,1);
+  coinPS.color2=new BABYLON.Color4(.85,.30,.05,1);
+  coinPS.colorDead=new BABYLON.Color4(.6,.20,0,0);
+  coinPS.minSize=.10; coinPS.maxSize=.28;
+  coinPS.minLifeTime=.8; coinPS.maxLifeTime=2.4;
+  coinPS.emitRate=0; coinPS.gravity=new BABYLON.Vector3(0,-5.5,0);
+  coinPS.direction1=new BABYLON.Vector3(-3,8,-2); coinPS.direction2=new BABYLON.Vector3(3,13,2);
+  coinPS.minEmitPower=1; coinPS.maxEmitPower=5; coinPS.updateSpeed=.018;
+  coinPS.blendMode=BABYLON.ParticleSystem.BLENDMODE_STANDARD;
 }
 
 function burst(){
-  const cx = innerWidth / 2;
-  const cy = innerHeight / 2;
+  const cx=innerWidth/2, cy=innerHeight*.42;
   for(let i=0;i<26;i++){
-    const d = document.createElement('div');
-    d.className = 'burstCoin';
-    d.style.left = cx + 'px';
-    d.style.top  = cy + 'px';
-    d.style.setProperty('--tx', RR(-260, 260).toFixed(1) + 'px');
-    d.style.setProperty('--ty', RR(-240, 180).toFixed(1) + 'px');
-    d.style.setProperty('--dur', RR(.65, 1.10).toFixed(2) + 's');
-    document.body.appendChild(d);
-    d.addEventListener('animationend', () => d.remove(), { once:true });
+    const el=document.createElement('div'); el.className='cBurst';
+    const a=i/26*Math.PI*2+RR(-.3,.3), d=RR(70,240), dur=RR(.65,1.5).toFixed(2);
+    el.style.setProperty('--tx',`${Math.cos(a)*d}px`);
+    el.style.setProperty('--ty',`${Math.sin(a)*d-RR(20,110)}px`);
+    el.style.setProperty('--dur',`${dur}s`);
+    el.style.left=`${cx-7+RR(-18,18)}px`; el.style.top=`${cy-7+RR(-8,8)}px`;
+    el.style.animationDelay=`${RR(0,.22)}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),(parseFloat(dur)+.6)*1e3);
   }
 }
 
+/* ════════════════════════════════════════════════════
+   SCENE
+════════════════════════════════════════════════════ */
 function createScene(){
-  scene = new BABYLON.Scene(engine);
-  scene.clearColor = new BABYLON.Color4(0,0,0,0);
+  scene=new BABYLON.Scene(engine);
+  scene.clearColor=new BABYLON.Color4(0,0,0,0);
+  cam=new BABYLON.ArcRotateCamera('cam',Math.PI/2,1.13,10.2,new BABYLON.Vector3(0,1.05,0),scene);
+  cam.fov=1.22;
+  cam.lowerAlphaLimit=cam.upperAlphaLimit=Math.PI/2;
+  cam.lowerBetaLimit=cam.upperBetaLimit=1.13;
+  cam.lowerRadiusLimit=cam.upperRadiusLimit=10.2;
+  cam.attachControl(canvas,false);
 
-  cam = new BABYLON.ArcRotateCamera('cam', -Math.PI/2, 1.02, 5.6, new BABYLON.Vector3(0,.90,0), scene);
-  cam.lowerRadiusLimit = 4.7;
-  cam.upperRadiusLimit = 7.4;
-  cam.lowerBetaLimit = .78;
-  cam.upperBetaLimit = 1.22;
-  cam.wheelPrecision = 40;
-  cam.useAutoRotationBehavior = false;
-  cam.attachControl(canvas, true);
-  cam.inputs.attached.pointers.buttons = [0,1,2];
+  // Fenix lighting — cooler, teal-tinted ambient
+  const amb=new BABYLON.HemisphericLight('amb',BABYLON.Vector3.Up(),scene);
+  amb.intensity=.30; amb.diffuse=new BABYLON.Color3(.70,.82,.88); amb.groundColor=new BABYLON.Color3(.02,.06,.08);
 
-  const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0,1,0), scene);
-  hemi.intensity = .90;
-  hemi.diffuse = new BABYLON.Color3(.95,.95,1);
-  hemi.groundColor = new BABYLON.Color3(.15,.07,.04);
+  const dir=new BABYLON.DirectionalLight('dir',new BABYLON.Vector3(-.2,-1,-.45),scene);
+  dir.intensity=1.25; dir.position=new BABYLON.Vector3(3,12,10);
+  dir.diffuse=new BABYLON.Color3(.95,.82,.60); dir.specular=new BABYLON.Color3(1.0,.88,.65);
 
-  const dir = new BABYLON.DirectionalLight('dir', new BABYLON.Vector3(-.35,-1,.2), scene);
-  dir.position = new BABYLON.Vector3(2.4, 4.2, -2.5);
-  dir.intensity = 1.5;
+  const rim=new BABYLON.DirectionalLight('rim',new BABYLON.Vector3(.05,-.15,1),scene);
+  rim.intensity=.20; rim.diffuse=new BABYLON.Color3(.84,.32,.07);
 
-  innerL = new BABYLON.PointLight('inner', new BABYLON.Vector3(0,1.28,.18), scene);
-  innerL.diffuse = new BABYLON.Color3(.95,.42,.10);
-  innerL.intensity = .22;
-  innerL.range = 7;
+  innerL=new BABYLON.PointLight('inn',new BABYLON.Vector3(0,1.65,.45),scene);
+  innerL.diffuse=new BABYLON.Color3(.84,.32,.07);
+  innerL.specular=new BABYLON.Color3(1.0,.50,.15);
+  innerL.intensity=0; innerL.range=12;
 
-  const frontL = new BABYLON.SpotLight('front', new BABYLON.Vector3(0,2.4,3.5), new BABYLON.Vector3(0,-.35,-1), Math.PI/2.6, 2, scene);
-  frontL.diffuse = new BABYLON.Color3(1,.84,.72);
-  frontL.intensity = 1.25;
-
-  glowLayer = new BABYLON.GlowLayer('glow', scene, { blurKernelSize: 72 });
-  glowLayer.intensity = .50;
-
-  const shd = new BABYLON.ShadowGenerator(1024, dir);
-  shd.useBlurExponentialShadowMap = true;
-  shd.blurKernel = 20;
-
-  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width:10, height:10 }, scene);
-  ground.position.y = 0;
-  ground.receiveShadows = true;
-  const groundMat = new BABYLON.StandardMaterial('groundMat', scene);
-  groundMat.diffuseColor = new BABYLON.Color3(.03,.03,.03);
-  groundMat.alpha = .0;
-  ground.material = groundMat;
+  glowL=new BABYLON.GlowLayer('gl',scene); glowL.intensity=.60;
+  const shd=new BABYLON.ShadowGenerator(1024,dir);
+  shd.useBlurExponentialShadowMap=true; shd.blurKernel=22;
 
   buildChest();
   buildDecorations();
+  hitList.forEach(m=>{try{shd.addShadowCaster(m,true);}catch(e){}});
   buildParticles();
 
-  hitList.forEach(m => { try{ shd.addShadowCaster(m, true); }catch(e){} });
-
-  scene.onPointerObservable.add((info) => {
-    if(info.type !== BABYLON.PointerEventTypes.POINTERDOWN || state !== 'idle') return;
-    const hit = scene.pick(scene.pointerX, scene.pointerY);
-    if(hit.hit && hitList.includes(hit.pickedMesh)) startOpen();
+  scene.onPointerObservable.add(info=>{
+    if(info.type!==BABYLON.PointerEventTypes.POINTERDOWN||state!=='idle') return;
+    const hit=scene.pick(scene.pointerX,scene.pointerY);
+    if(hit.hit&&hitList.includes(hit.pickedMesh)) startOpen();
   });
-
   scene.onBeforeRenderObservable.add(tick);
 }
 
+/* ════════════════════════════════════════════════════
+   GAME LOOP
+════════════════════════════════════════════════════ */
 function tick(){
-  const dt = engine.getDeltaTime() / 1000;
-  idleT += dt;
-  stateT += dt;
-  const bob = Math.sin(idleT * 1.18) * .065;
-
-  if(state === 'idle'){
-    root.position.y = bob;
-    root.rotation.y = Math.sin(idleT * .35) * .10;
-    innerL.intensity = .18 + Math.sin(idleT * 2.0) * .09;
-    glowLayer.intensity = .42 + Math.sin(idleT * 1.4) * .14;
+  const dt=engine.getDeltaTime()/1000;
+  idleT+=dt; stateT+=dt;
+  const bob=Math.sin(idleT*1.18)*.065;
+  if(state==='idle'){
+    root.position.y=bob;
+    innerL.intensity=.18+Math.sin(idleT*2.0)*.09;
+    glowL.intensity=.42+Math.sin(idleT*1.5)*.14;
+    innerL.diffuse.set(.84+Math.sin(idleT*.9)*.08,.32,.07);
     return;
   }
-  if(state === 'shake'){
-    const t = clp(stateT / SHAKE, 0, 1);
-    const sh = Math.sin(t * Math.PI * 20) * (1-t) * .22;
-    root.position.x = sh;
-    root.position.y = bob * (1 - t*.5);
-    root.rotation.z = sh * .25;
-    innerL.intensity = .24 + t * 4.4;
-    glowLayer.intensity = .55 + t * 3.8;
-    if(stateT >= SHAKE){
-      root.position.x = 0;
-      root.rotation.z = 0;
-      state = 'open';
-      stateT = 0;
-    }
+  if(state==='shake'){
+    const t=clp(stateT/SHAKE,0,1);
+    const sh=Math.sin(t*Math.PI*20)*(1-t)*.22;
+    root.position.x=sh; root.position.y=bob*(1-t*.5); root.rotation.z=sh*.25;
+    innerL.intensity=.22+t*4.5; innerL.diffuse.set(.84+t*.12,.32+t*.18,.07);
+    glowL.intensity=.55+t*3.8;
+    if(stateT>=SHAKE){root.position.x=0;root.rotation.z=0;state='open';stateT=0;}
     return;
   }
-  if(state === 'open'){
-    const t = clp(stateT / OPEN, 0, 1);
-    const e = eio(t);
-    hingePivot.rotation.x = -e * 2.34;
-    innerL.intensity = t < .28 ? 3.5 + Math.sin((t/.28) * Math.PI) * 5.5 : lrp(3.5, 6.8, (t-.28)/.72);
-    glowLayer.intensity = lrp(4.8, 1.1, t);
-    if(stateT >= OPEN){
-      innerL.intensity = .72;
-      glowLayer.intensity = 1.0;
-      onDone();
-    }
+  if(state==='open'){
+    const t=clp(stateT/OPEN,0,1), e=eio(t);
+    hingePivot.rotation.x=-e*2.44;
+    innerL.intensity=t<.28?3.5+Math.sin((t/.28)*Math.PI)*6:lrp(3.5,.70,(t-.28)/.72);
+    glowL.intensity=lrp(4.8,.92,t);
+    if(stateT>=OPEN){innerL.intensity=.70;glowL.intensity=.92;onDone();}
     return;
   }
-  if(state === 'reward'){
-    root.position.y = bob * .42;
-    root.rotation.y = Math.sin(idleT * .45) * .06;
-    innerL.intensity = .55 + Math.sin(idleT * 1.3) * .18;
-    glowLayer.intensity = .82 + Math.sin(idleT * 1.0) * .20;
+  if(state==='reward'){
+    root.position.y=bob*.45;
+    innerL.intensity=.55+Math.sin(idleT*1.3)*.18;
+    glowL.intensity=.82+Math.sin(idleT*1.0)*.20;
   }
 }
 
 function startOpen(){
-  if(state !== 'idle') return;
-  state = 'shake';
-  stateT = 0;
-  $('openBtn').disabled = true;
-  $('hintText').style.opacity = '0';
+  if(state!=='idle') return;
+  state='shake'; stateT=0;
+  $('openBtn').disabled=true;
+  $('hintText').style.opacity='0';
   if(SFX.bg && SFX.bg.paused && !audioMuted) SFX.bg.play().catch(()=>{});
   playSfx('shake');
 }
@@ -810,110 +935,79 @@ async function onDone(){
   })(performance.now());
 }
 
-function setupUserScreen(){
-  const inp = $('usernameInput');
-  inp.addEventListener('keydown', (e) => { if(e.key === 'Enter') $('btnJugar').click(); });
-  $('btnJugar').addEventListener('click', async () => {
-    const name = (inp.value || '').trim();
-    if(name.length < 2){ setError('Mínimo 2 caracteres'); return; }
-    if(name.length > 30){ setError('Máximo 30 caracteres'); return; }
-
-    setError('');
-    setLoading(true);
-
-    const existing = await checkByUsername(name);
-    if(existing){ setLoading(false); setError('Este usuario ya participó'); return; }
-
-    const fpCheck = await checkByFingerprint(visitorId);
-    if(fpCheck){
-      setLoading(false);
-      hideUserScreen();
-      showBlocked(fpCheck.username, fpCheck.premio);
-      return;
-    }
-
-    currentUsername = name;
-    setLoading(false);
-    hideUserScreen();
-  });
-}
-
-window.addEventListener('DOMContentLoaded', async () => {
-  if(SUPABASE_URL.startsWith('http') && SUPABASE_KEY && SUPABASE_KEY !== 'PEGÁ_ACÁ_TU_SUPABASE_ANON_KEY'){
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  } else {
-    console.warn('Supabase no configurado todavía. Pegá tus credenciales reales.');
-  }
-
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   canvas = $('renderCanvas');
-  engine = new BABYLON.Engine(canvas, true, { antialias:true, adaptToDeviceRatio:true });
+  engine = new BABYLON.Engine(canvas, true, {antialias:true, adaptToDeviceRatio:true});
 
-  const fill = $('loadFill');
-  const msgs = ['Cargando.','Preparando cofre.','Casi listo.'];
-  let p = 0;
-  const iv = setInterval(() => {
-    p = Math.min(p + RR(8,18), 88);
-    fill.style.width = p + '%';
-    $('loadMsg').textContent = msgs[Math.floor(p/33) % msgs.length];
-  }, 220);
+  const fill=$('loadFill');
+  const msgs=['Cargando...','Preparando cofre...','Casi listo...'];
+  let p=0;
+  const iv=setInterval(()=>{
+    p=Math.min(p+RR(8,18),88);
+    fill.style.width=p+'%';
+    $('loadMsg').textContent=msgs[Math.floor(p/33)%msgs.length];
+  },220);
 
+  // ── FIX BRAVE: chequeamos localStorage PRIMERO
   const lsPlay = lsGetPlay();
   if(lsPlay){
     clearInterval(iv);
-    fill.style.width = '100%';
-    $('loadMsg').textContent = '¡Listo!';
+    fill.style.width='100%';
+    $('loadMsg').textContent='¡Listo!';
     $('loading').classList.add('out');
-
-    createScene();
-    engine.runRenderLoop(() => { if(scene) scene.render(); });
-    window.addEventListener('resize', () => engine.resize());
-    audioSetup();
-
-    setTimeout(() => {
-      $('loading').style.display = 'none';
+    setTimeout(()=>{
+      $('loading').style.display='none';
       showBlocked(lsPlay.username, lsPlay.premio);
     }, 900);
+    createScene();
+    engine.runRenderLoop(()=>{ if(scene) scene.render(); });
+    window.addEventListener('resize',()=>engine.resize());
+    audioSetup();
     return;
   }
 
+  // ── Fingerprint
   try {
-    const fp = await FingerprintJS.load();
-    const result = await fp.get();
-    visitorId = result.visitorId;
+    const fp=await FingerprintJS.load();
+    const result=await fp.get();
+    visitorId=result.visitorId;
   } catch(e){
     console.warn('FingerprintJS failed, using fallback');
-    visitorId = 'fp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    visitorId='fp_'+Date.now()+'_'+Math.random().toString(36).slice(2);
   }
 
   createScene();
 
-  scene.executeWhenReady(async () => {
-    clearInterval(iv);
-    fill.style.width = '100%';
-    $('loadMsg').textContent = '¡Listo!';
+  scene.executeWhenReady(async ()=>{
+    clearInterval(iv); fill.style.width='100%';
+    $('loadMsg').textContent='¡Listo!';
 
-    let blocked = null;
-    try { blocked = await checkByFingerprint(visitorId); } catch(e){ console.warn('DB check failed', e); }
+    let blocked=null;
+    try { blocked=await checkByFingerprint(visitorId); } catch(e){ console.warn('DB check failed',e); }
 
     setupUserScreen();
 
-    setTimeout(() => {
+    setTimeout(()=>{
       $('loading').classList.add('out');
-      setTimeout(() => { $('loading').style.display = 'none'; }, 1000);
-      setTimeout(() => {
+      setTimeout(()=>{ $('loading').style.display='none'; }, 1000);
+      setTimeout(()=>{
         if(blocked){
           lsSavePlay(blocked.username, blocked.premio);
           showBlocked(blocked.username, blocked.premio);
         } else {
           showUserScreen();
         }
-      }, 160);
-    }, 420);
+      }, 200);
+    }, 500);
   });
 
-  engine.runRenderLoop(() => { if(scene) scene.render(); });
-  window.addEventListener('resize', () => engine.resize());
-  $('openBtn').addEventListener('click', () => { if(state === 'idle') startOpen(); });
+  engine.runRenderLoop(()=>{ if(scene) scene.render(); });
+  window.addEventListener('resize',()=>engine.resize());
+  $('openBtn').addEventListener('click',()=>{ if(state==='idle') startOpen(); });
   audioSetup();
 });
 </script>
